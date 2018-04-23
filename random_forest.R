@@ -29,7 +29,7 @@ data <- subset(data, genero != "NULL", select = -c(rodado, total_riegos, goteo, 
                                  aguas_turbias_negras, presa_represa, insecticida, uso_biofertilizantes, 
                                  cont_qui_male_desp_siemb, uso_mejoradores, uso_biofertilizantes, fertilizacion_quimica_suelo,
                                  preparacion_suelo_herbicida, fungicida, humedad_al_sembrar, arreglo_de_la_siembra,
-                                 fertilizacion_quimica_foliar ))
+                                 fertilizacion_quimica_foliar, nivelacion))
 
 
 data$genero <- as.factor(as.character(data$genero))
@@ -54,7 +54,6 @@ data$escarda <- as.factor(data$escarda)
 data$subsoleo_cinceleo_piqueo_escarificado <- as.factor(data$subsoleo_cinceleo_piqueo_escarificado)
 data$barbecho <- as.factor(data$barbecho)
 data$rastreo <- as.factor(data$rastreo)
-data$nivelacion <- as.factor(data$nivelacion)
 data$trazos_urci <- as.factor(data$trazos_urci)
 data$reformacion_camas_surcos <- as.factor(data$reformacion_camas_surcos)
 
