@@ -7,11 +7,15 @@ list.of.packages <- c("caret", "nnet", "here")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
-#Create folder data
-dir.create(file.path(here(), "data"), showWarnings = FALSE)
 
 #Load libraries
 lapply(list.of.packages, require, character.only = TRUE)
+
+
+#Create folder data
+dir.create(file.path(here(), "data"), showWarnings = FALSE)
+
+
 
 
 #name file and load data
@@ -108,7 +112,7 @@ ifelse(n <- sapply(l, function(x) length(levels(x))) == 1, "DROP", "NODROP")
 
 
 ctrl <- expand.grid(size = c(2,4,6) ,decay = c(0.1,0.5,0.8) )
-model <- train(genero~.,data=training,method = "nnet", tuneGrid = ctrl, trControl = trainControl(method = "cv",number = 10), lineout =T) 
+model <- train(genero~.,data=training,method = "nnet", trControl = trainControl(method = "cv",number = 10), lineout =T) 
 
 training <- training[!(training$genero=="NULL"), ]
 
