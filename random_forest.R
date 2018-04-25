@@ -3,7 +3,7 @@
 rm(list=ls())
 
 #Install packages 
-list.of.packages <- c("caret", "nnet", "here", "rpart")
+list.of.packages <- c("caret", "nnet", "here", "rpart", "rpart.plot", "rattle")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -17,9 +17,6 @@ dir.create(file.path(here(), "data"), showWarnings = FALSE)
 dir.create(file.path(here(), "graphics"), showWarnings = FALSE)
 
 
-
-
-
 #name file and load data
 name_file <- "data_chiapas_19Abr.csv"
 data <- read.csv(paste0(here(),"/data/", name_file))
@@ -29,7 +26,6 @@ variable <- "genero"
 
 
 #data
-
 data <- subset(data, genero != "NULL", select = -c(rodado, total_riegos, goteo, gravedad, aspercion, rio, pozo,
                                  escurrimientos_superficiales, afectaciones, ocurrencias, rotacion_cultivos,
                                  aguas_turbias_negras, presa_represa, insecticida, uso_biofertilizantes, 
@@ -74,6 +70,25 @@ index_change <- data$nombre_de_la_variedad_final %in% names_variety
 data$nombre_de_la_variedad_final <- as.vector(data$nombre_de_la_variedad_final)
 data$nombre_de_la_variedad_final[index_change] <- "OTRA (ESPECIFIQUE)"
 data$nombre_de_la_variedad_final <- as.factor(data$nombre_de_la_variedad_final )
+
+
+#data
+set.seed(123)
+Masculino <- subset(data, genero == "Masculino")
+Femenino <- subset(data, genero == "Femenino")
+length_mas <- dim(Masculino)[1]
+length_fem <- dim(Femenino)[1]
+index <- sample(1:length_mas, length_fem)
+sample_masculino <- Masculino[index,]
+data <-  rbind(Femenino, sample_masculino)
+
+
+
+
+
+
+
+
 
 
 #Partition
@@ -203,8 +218,7 @@ ggsave(paste0(here(),"/graphics/escolaridad_chiapas.png"))
 
 #CART
 cart <- rpart(genero ~., training)
-cart_2 <- prune(cart, cp = 0.02)
-plot(cart_2, uniform = TRUE)
+prp(cart, uniform = TRUE)
 
 
 
