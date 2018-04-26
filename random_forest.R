@@ -18,6 +18,7 @@ dir.create(file.path(here(), "graphics"), showWarnings = FALSE)
 
 
 #name file and load data
+#name_file <- "data_guanajuato19Abr.csv"
 name_file <- "data_chiapas_19Abr.csv"
 data <- read.csv(paste0(here(),"/data/", name_file))
 
@@ -83,27 +84,20 @@ sample_masculino <- Masculino[index,]
 data <-  rbind(Femenino, sample_masculino)
 
 
-
-
-
-
-
-
-
-
 #Partition
 set.seed(123)
 inTrain  <- createDataPartition(y=data[,which(colnames(data)== variable)], p=0.7, list=F)
 training <- data[inTrain,]
 testing  <- data[-inTrain,]
 ctrl <- expand.grid(size = c(2,4,6) ,decay = c(0.1,0.5,0.8) )
-model <- train(y=training$genero,x=training[,-4],method = "rf", trControl = trainControl(method = "cv",number = 10)) 
+model <- train(y=training$genero,x=training[,-which(colnames(training)=="genero")],method = "rf", trControl = trainControl(method = "cv",number = 10)) 
 pred_val <- predict(model,testing)
 postResample(pred_val,testing$genero)
 plot(pred_val,testing$genero,col="red",pch=19)
 abline(0,1,lty=2)
 varImp <- varImp(model)
 plot(varImp)
+ggsave(paste0(here(),"/graphics/VariablesImportant.png"))
 
 
 
@@ -199,26 +193,35 @@ data_escolaridad_fem$Total <- data_escolaridad_fem$Total/sum(data_escolaridad_fe
 
 
 complete_data <- rbind(data_escolaridad_mas, data_escolaridad_fem)
-complete_data <- complete_data[-which(complete_data$Nivel_Estudios=="NULL"),]
 
-levels(complete_data$Nivel_Estudios)[2] <- c("Tecnicos con primaria")
-levels(complete_data$Nivel_Estudios)[3] <- c("Tecnicos con secundaria")
-levels(complete_data$Nivel_Estudios)[4] <- c("Profesional")
-levels(complete_data$Nivel_Estudios)[9] <- c("Bachillerato")
+lengh_null <- length(which(complete_data$Nivel_Estudios=="NULL"))
+if(lengh_null != 0)
+{
+  complete_data <- complete_data[-which(complete_data$Nivel_Estudios=="NULL"),]
+}  
+
+
+levels(complete_data$Nivel_Estudios)[which(levels(complete_data$Nivel_Estudios)=="Estudios tecnicos o comerciales con primaria terminada")] <- c("Tecnicos con primaria")
+levels(complete_data$Nivel_Estudios)[which(levels(complete_data$Nivel_Estudios)=="Estudios tecnicos o comerciales con secundaria terminada")] <- c("Tecnicos con secundaria")
+levels(complete_data$Nivel_Estudios)[which(levels(complete_data$Nivel_Estudios)=="Licenciatura o profesional")] <- c("Profesional")
+levels(complete_data$Nivel_Estudios)[which(levels(complete_data$Nivel_Estudios)=="Preparatoria o bachillerato")] <- c("Bachillerato")
 
 complete_data$Total <- complete_data$Total/sum(complete_data$Total)
 
 p <- ggplot(complete_data, aes( Nivel_Estudios , Total))
 q <- p +geom_bar(stat = "identity", aes(fill = Genero), , position='dodge') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 q + ggtitle("Escolaridad por género \n Chiapas") + theme(plot.title = element_text(hjust = 0.5)) +scale_y_continuous(labels=scales::percent)
-ggsave(paste0(here(),"/graphics/escolaridad_chiapas.png"))
+ggsave(paste0(here(),"/graphics/escolaridad.png"))
 
 
 
 
 #CART
+
 cart <- rpart(genero ~., training)
+png(paste0(here(),"/graphics/CART.png"))
 prp(cart, uniform = TRUE)
+dev.off()
 
 
 
